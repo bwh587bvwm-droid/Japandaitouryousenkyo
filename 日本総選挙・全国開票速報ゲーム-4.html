@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>日本総選挙・全国開票速報ゲーム</title>
+<style>
+:root{--bg:#f4f5f8;--card:#fff;--tx:#1b1f2a;--mu:#6b7280;--red:#d6303a;--blue:#2a62d6;--gr:#a7aebb;--bd:#d8dce5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151c;--card:#1b2030;--tx:#e8ebf2;--mu:#9aa3b5;--red:#e0454f;--blue:#4a7be0;--gr:#4b5365;--bd:#2f364a}}
+:root[data-theme="dark"]{--bg:#12151c;--card:#1b2030;--tx:#e8ebf2;--mu:#9aa3b5;--red:#e0454f;--blue:#4a7be0;--gr:#4b5365;--bd:#2f364a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Hiragino Sans","Yu Gothic",Meiryo,system-ui,sans-serif}
+.w{max-width:1000px;margin:0 auto;padding:14px}
+h1{font-size:19px;margin:2px 0}
+.sub{color:var(--mu);font-size:12px;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px}
+.score{display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
+.score .r{color:var(--red)}.score .b{color:var(--blue)}
+.score .n{font-size:30px}.score small{font-size:12px;font-weight:400;color:var(--mu)}
+.bar{position:relative;height:16px;border-radius:8px;background:var(--gr);overflow:hidden;margin:8px 0 6px;display:flex}
+.bar i{display:block;height:100%;transition:width .6s}
+#br{background:var(--red)}#bb{background:var(--blue);margin-left:auto}
+.mid{position:absolute;left:50%;top:0;bottom:0;border-left:2px dashed var(--card)}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ctl .t{margin-right:auto}
+.turn{font-weight:700}.ph{color:var(--mu);font-size:12px}
+button{font:inherit;font-size:14px;padding:8px 13px;border-radius:9px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+button.p{background:var(--tx);color:var(--bg);border-color:var(--tx);font-weight:700}
+button:disabled{opacity:.4;cursor:default}
+.grid{display:grid;grid-template-columns:1fr 270px;gap:12px;margin-top:12px;align-items:start}
+@media(max-width:780px){.grid{grid-template-columns:1fr}}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+#mw{overflow:auto;max-height:78vh;border-radius:10px}
+#cv{display:block;width:100%;height:auto;cursor:pointer}
+.leg{display:flex;gap:12px;font-size:12px;color:var(--mu);margin-top:8px;flex-wrap:wrap}
+.leg b{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:middle}
+#info h3{margin:0 0 8px;font-size:17px}
+.sh{height:12px;border-radius:6px;background:var(--blue);overflow:hidden;margin:8px 0}
+.sh i{display:block;height:100%;background:var(--red)}
+#log{max-height:300px;overflow:auto;font-size:13px;margin:12px 0 0;padding:0;list-style:none}
+#log li{padding:5px 0;border-top:1px solid var(--bd)}
+.R{color:var(--red);font-weight:700}.B{color:var(--blue);font-weight:700}
+#end{display:none;text-align:center;font-size:20px;font-weight:800;padding:14px;margin-top:10px;border-radius:12px;color:#fff}
+.names{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}.names label{flex:1;min-width:140px;font-size:12px;color:var(--mu)}.names input,.names select{width:100%;font:inherit;font-size:15px;font-weight:700;padding:8px 10px;margin-top:4px;border-radius:9px;border:2px solid;background:var(--card);color:var(--tx)}
+#ev{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--bd);border-left:5px solid #e0a020;font-size:14px}
+#ev .ph{margin-top:3px}
+</style></head><body><div class="w">
+<h1>日本総選挙・全国開票速報</h1>
+<div class="sub">観戦型の架空選挙ゲーム。ポイントはゲーム用の配分で、現実の議席数・結果とは無関係です。</div>
+<div class="card">
+ <div class="names"><label>赤の政党名<input id="ir" maxlength="12" placeholder="赤党" style="border-color:var(--red)"></label><label>青の政党名<input id="ib" maxlength="12" placeholder="青党" style="border-color:var(--blue)"></label><label style="max-width:130px">ターン数（1〜47）<input id="it" type="number" min="1" max="47" value="15" style="border-color:var(--gr)"></label><label style="max-width:140px">イベント頻度<select id="ie" style="border-color:#e0a020"><option value="0">なし</option><option value="1">小</option><option value="2" selected>中</option><option value="3">大</option><option value="4">毎ターン</option></select></label></div>
+ <div class="score"><span class="r"><small class="nr">赤党</small> <span class="n" id="sr">0</span></span><span class="ph" id="maj"></span><span class="b"><span class="n" id="sb">0</span> <small class="nb">青党</small></span></div>
+ <div class="bar"><i id="br" style="width:0"></i><i id="bb" style="width:0"></i><span class="mid"></span></div>
+ <div class="ctl"><span class="t"><span class="turn" id="tn"></span>　<span class="ph" id="ph"></span></span>
+ <button class="p" id="nx">次のターン ▶</button><button id="au">自動進行</button><button id="rs">最初から</button></div>
+ <div id="ev"></div><div id="end"></div>
+</div>
+<div class="grid">
+ <div class="card"><div class="mh"><span class="ph">タップで県の詳細　※関東は拡大で見やすくなります</span><button id="zm">拡大 ＋</button></div>
+ <div id="mw"><canvas id="cv"></canvas></div>
+ <div class="leg"><span><b style="background:var(--red)"></b><span class="nr">赤党</span> 当確</span><span><b style="background:var(--blue)"></b><span class="nb">青党</span> 当確</span><span><b style="background:var(--gr)"></b>未判明</span><span>数字＝県ポイント</span></div></div>
+ <div class="card"><div id="info"><div class="ph">県をタップすると得票率とポイントが見られます。</div></div><ul id="log"></ul></div>
+</div></div>
+<script>
+const P=[["北海道",12,141.3,43.1],["青森",3,140.7,40.8],["岩手",3,141.1,39.7],["宮城",5,140.9,38.3],["秋田",3,140.0,39.7],["山形",3,140.3,38.2],["福島",4,140.2,37.4],["茨城",7,140.4,36.3],["栃木",5,139.8,36.7],["群馬",5,139.0,36.4],["埼玉",16,139.5,35.95],["千葉",14,140.2,35.5],["東京",30,139.5,35.68],["神奈川",20,139.45,35.4],["新潟",5,139.0,37.8],["富山",3,137.2,36.65],["石川",3,136.7,36.6],["福井",2,136.2,35.9],["山梨",2,138.6,35.65],["長野",5,138.1,36.2],["岐阜",4,136.8,35.55],["静岡",8,138.2,35.0],["愛知",16,137.2,35.05],["三重",4,136.4,34.6],["滋賀",4,136.1,35.2],["京都",6,135.5,35.2],["大阪",19,135.5,34.65],["兵庫",12,134.8,35.0],["奈良",3,135.85,34.4],["和歌山",2,135.5,33.95],["鳥取",2,134.2,35.4],["島根",2,132.6,35.2],["岡山",4,133.8,34.9],["広島",6,132.8,34.7],["山口",3,131.5,34.25],["徳島",2,134.3,34.0],["香川",3,134.0,34.15],["愛媛",3,132.8,33.7],["高知",2,133.5,33.4],["福岡",11,130.6,33.55],["佐賀",2,130.1,33.2],["長崎",3,130.0,32.9],["熊本",4,130.8,32.8],["大分",3,131.5,33.2],["宮崎",3,131.4,32.0],["鹿児島",4,130.6,31.5],["沖縄",4,0,0]];
+// 面積の大きい県ほど縄張りを広く（px）
+const RAD={2:12,6:9,19:9,14:9,20:6,21:4,4:5,31:6,42:6,33:4,32:3,36:-4,26:-3,12:-3,13:-2,10:-2,17:-2,18:-2,28:-1,29:-1,3:2,5:3};
+const LW=632,LH=730,SC=2,W=LW*SC,H=LH*SC;
+const px=o=>((o-129.2)*38+16),py=a=>((45.6-a)*47+16);
+const LL=a=>a.map(c=>[px(c[0]),py(c[1])]);
+const ISL={
+1:LL([[141.5,41.4],[140.3,41.2],[140.0,39.9],[139.8,38.8],[139.4,38.0],[138.8,37.6],[137.3,37.5],[136.7,37.3],[136.0,36.1],[135.2,35.7],[133.5,35.55],[132.5,35.5],[131.3,34.45],[130.9,34.0],[132.2,34.2],[134,34.7],[135.3,34.6],[135.2,33.5],[136.9,34.3],[138.2,34.6],[139.9,35.1],[140.9,35.7],[140.9,36.9],[141.0,37.9],[141.5,38.3],[141.9,39.0],[142.0,39.6],[141.9,40.5]]),
+2:LL([[140,41.5],[141,41.9],[140.3,43.2],[141.7,45.4],[143,44.5],[145.3,43.4],[143.5,42],[141.5,42.5],[140.5,42.2]]),
+3:LL([[130,33.8],[131,33.9],[131.9,33.2],[131.6,31.4],[130.7,31],[130.2,32],[129.75,32.7],[129.7,33.3]]),
+4:LL([[132.4,33.8],[133.7,34.3],[134.7,34.2],[134.2,33.6],[133,32.8],[132.5,33.2]]),
+5:[[538,668],[552,640],[566,626],[574,638],[560,660],[546,680]]};
+const SITES=P.map((p,i)=>i===46?[556,650]:[px(p[2]),py(p[3])]);
+const ISLOF=i=>i===0?2:i<=34?1:i<=38?4:i<=45?3:5;
+let own=new Uint8Array(W*H).fill(255),cen=[],area=new Array(47).fill(0);
+const cv=document.getElementById('cv');cv.width=W;cv.height=H;
+const ctx=cv.getContext('2d');
+function build(){
+ const off=document.createElement('canvas');off.width=W;off.height=H;const o=off.getContext('2d',{willReadFrequently:true});
+ const sx=new Float64Array(47),sy=new Float64Array(47);
+ for(const id in ISL){
+  o.clearRect(0,0,W,H);o.fillStyle='#000';o.beginPath();
+  ISL[id].forEach((c,k)=>k?o.lineTo(c[0]*SC,c[1]*SC):o.moveTo(c[0]*SC,c[1]*SC));o.closePath();o.fill();
+  const d=o.getImageData(0,0,W,H).data,list=P.map((_,i)=>i).filter(i=>ISLOF(i)==id);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+   if(d[(y*W+x)*4+3]<128)continue;
+   let b=1e9,bi=list[0];
+   for(const i of list){const dx=x-SITES[i][0]*SC,dy=y-SITES[i][1]*SC,v=Math.sqrt(dx*dx+dy*dy)-(RAD[i]||0)*SC;if(v<b){b=v;bi=i}}
+   own[y*W+x]=bi;area[bi]++;sx[bi]+=x;sy[bi]+=y;
+  }}
+ cen=P.map((_,i)=>area[i]?[sx[i]/area[i],sy[i]/area[i]]:[SITES[i][0]*SC,SITES[i][1]*SC]);
+}
+let T=15,CNT=[],EVT={},USED=[];
+function plan(){
+ const s0=Math.max(0,Math.min(4,47-T)),rem=47-s0,b=Math.floor(rem/T);
+ CNT=[s0];for(let t=1;t<=T;t++)CNT.push(b);
+ let x=rem-b*T;for(let t=T;x>0;t--,x--)CNT[t]++;
+ EVT={};USED=[];
+ const lv=+$('ie').value,rt=[0,.15,.3,.5,1][lv],pool=[];
+ for(let t=1;t<=T;t++)pool.push(t);
+ const ne=lv?Math.min(pool.length,Math.max(1,Math.round(T*rt))):0;
+ for(let k=0;k<ne&&pool.length;k++)EVT[pool.splice(Math.floor(Math.random()*pool.length),1)[0]]=1;
+}
+const E=[
+{k:'pos',a:[3,6],sc:12,t:p=>`【災害】豪雨被害で${p}の初動対応が高評価`,d:'被災地で好感度がアップ。'},
+{k:'neg',a:[3,6],sc:12,t:p=>`【災害】台風被害で${p}の対応が後手に`,d:'被災地で批判の声。'},
+{k:'sw',a:[4,7],sc:0,t:p=>'【災害】大型台風が直撃、投票行動に異変',d:'投票率が読めず情勢が大きく揺れた。'},
+{k:'sw',a:[3,6],sc:16,t:p=>'【災害】地震の影響で一部地域の開票が乱れる',d:'情勢がまったく読めなくなった。'},
+{k:'neg',a:[3,6],sc:0,t:p=>`【裏金】${p}に裏金疑惑が浮上`,d:'パーティー収入の不記載が報じられた。'},
+{k:'neg',a:[2,4],sc:16,t:p=>`【裏金】${p}の資金に不透明な支出が発覚`,d:'一部の県で信頼が揺らいだ。'},
+{k:'neg',a:[2,4],sc:0,t:p=>`【失言】${p}の幹部の発言がSNSで炎上`,d:'発言の切り抜きが拡散された。'},
+{k:'neg',a:[2,5],sc:16,t:p=>`【失言】${p}の候補が演説で痛恨の言い間違い`,d:'動画が一気に広まった。'},
+{k:'neg',a:[3,6],sc:0,t:p=>`【不倫】${p}の議員に不倫報道`,d:'週刊誌が一斉に報じた。'},
+{k:'neg',a:[2,5],sc:16,t:p=>`【不倫】${p}のベテランにまさかの不倫疑惑`,d:'有権者がざわついている。'},
+{k:'pos',a:[2,4],sc:0,t:p=>`【士気】${p}党首の演説で陣営の士気が爆上がり`,d:'動画が数百万回再生された。'},
+{k:'pos',a:[2,5],sc:16,t:p=>`【士気】${p}の決起集会が大盛況`,d:'熱気が各地に広がっている。'},
+{k:'pos',a:[2,4],sc:16,t:p=>`【行動】${p}の候補が早朝にゴミ拾い、好感度アップ`,d:'地元で話題になった。'},
+{k:'pos',a:[3,5],sc:12,t:p=>`【行動】${p}の候補が被災地でボランティア`,d:'現場の姿が広く共感を集めた。'},
+{k:'neg',a:[2,4],sc:16,t:p=>`【行動】${p}の候補が選挙カーで信号無視`,d:'ドラレコ映像が拡散された。'},
+{k:'neg',a:[2,5],sc:16,t:p=>`【行動】${p}の候補が握手を拒否と話題に`,d:'SNSで批判が相次いだ。'},
+{k:'neg',a:[3,6],sc:0,t:p=>`【裏金】${p}の幹部宅に家宅捜索が入る`,d:'ニュース速報で繰り返し報じられた。'},
+{k:'neg',a:[2,4],sc:16,t:p=>`【裏金】${p}の議員が領収書の使途を問われ答弁に窮する`,d:'しどろもどろの答弁が話題に。'},
+{k:'neg',a:[2,5],sc:16,t:p=>`【失言】${p}の議員がうっかり本音を漏らす`,d:'マイクが切れていなかった。'},
+{k:'neg',a:[2,4],sc:0,t:p=>`【失言】${p}の党首が会見で言い間違いを連発`,d:'不安の声が広がっている。'},
+{k:'neg',a:[2,4],sc:16,t:p=>`【不倫】${p}の若手に二股報道`,d:'SNSでトレンド入り。'},
+{k:'neg',a:[3,5],sc:16,t:p=>`【不倫】${p}の候補の深夜の密会写真が流出`,d:'地元で大きな波紋。'},
+{k:'pos',a:[2,5],sc:16,t:p=>`【士気】${p}の応援に人気タレントが駆けつける`,d:'会場に人が殺到した。'},
+{k:'pos',a:[3,5],sc:0,t:p=>`【士気】${p}の党首が涙の訴えで共感の輪が広がる`,d:'涙する支持者が相次いだ。'},
+{k:'pos',a:[2,4],sc:0,t:p=>`【士気】${p}の演説動画がバズり若者に浸透`,d:'シェアが止まらない。'},
+{k:'pos',a:[2,4],sc:16,t:p=>`【行動】${p}の候補が地元の祭りで神輿を担ぎ好評`,d:'地域の人と一体になった。'},
+{k:'pos',a:[2,4],sc:16,t:p=>`【行動】${p}の候補が駅前で毎朝あいさつ、地道な活動が実る`,d:'じわじわと支持が広がった。'},
+{k:'neg',a:[2,5],sc:16,t:p=>`【行動】${p}の候補が討論会で大きく失点`,d:'質問に答えられなかった。'},
+{k:'neg',a:[2,4],sc:16,t:p=>`【行動】${p}の候補が演説中に寠ていたと拡散`,d:'切り抜き画像が出回った。'},
+{k:'sw',a:[3,6],sc:16,t:p=>'【デマ】根拠不明のデマが拡散し情勢が混乱',d:'真假不明の情報が飛び交った。'}];
+function fire(){
+ const W8=E.map((e,j)=>USED.includes(j)&&USED.length<E.length?0:e.t('').startsWith('【災害】')?.35:1);
+ let r=Math.random()*W8.reduce((a,b)=>a+b,0),i=0;for(;i<E.length-1;i++){if(r<W8[i])break;r-=W8[i]}
+ USED.push(i);
+ const e=E[i],side=Math.random()<.5?'R':'B',p=side==='R'?NR:NB,un=st.filter(s=>!s.rev);
+ if(!un.length)return;
+ const tg=e.sc?un.slice().sort(()=>Math.random()-.5).slice(0,e.sc):un,dir=e.k==='pos'?1:-1,sg=side==='R'?1:-1;
+ tg.forEach(s=>{const a=e.a[0]+Math.random()*(e.a[1]-e.a[0]),d=e.k==='sw'?(Math.random()*2-1)*a:dir*sg*a*(.7+Math.random()*.6);
+  s.red=Math.round(Math.max(25,Math.min(75,s.red+d))*10)/10;s.k=Math.abs(s.red-50)+Math.random()*5});
+ st.order.sort((a,b)=>b.k-a.k);
+ const tt=e.t(p),bx=$('ev');
+ bx.innerHTML=`<b>⚡ 速報イベント</b>　${tt}<div class="ph">${e.d}（未開票${tg.length}県に影響）</div>`;bx.style.display='block';
+ log(`<b>⚡ ${tt}</b>`);
+}
+let st,turn,timer=null,sel=-1;
+const $=id=>document.getElementById(id);
+let NR='赤党',NB='青党';try{NR=localStorage.getItem('nr')||NR;NB=localStorage.getItem('nb')||NB}catch(e){}
+function setNames(){document.querySelectorAll('.nr').forEach(e=>e.textContent=NR);document.querySelectorAll('.nb').forEach(e=>e.textContent=NB)}
+const endTxt=(r,b)=>r>b?`${NR}の勝利！ ${r} − ${b}`:b>r?`${NB}の勝利！ ${b} − ${r}`:`引き分け ${r} − ${b}`;
+function nameIn(){NR=$('ir').value.trim()||'赤党';NB=$('ib').value.trim()||'青党';try{localStorage.setItem('nr',NR);localStorage.setItem('nb',NB)}catch(e){}setNames();if(sel>=0)info();if(turn>=T)$('end').textContent=endTxt(...score())}
+const rn=()=>{let u=0;for(let i=0;i<6;i++)u+=Math.random();return u-3};
+const TOTAL=P.reduce((s,p)=>s+p[1],0),MAJ=Math.floor(TOTAL/2)+1;
+function init(){
+ stopAuto();turn=0;sel=-1;plan();
+ st=P.map((p,i)=>({i,red:Math.round(Math.min(72,Math.max(28,50+rn()*9))*10)/10,rev:false}));
+ st.forEach(s=>s.k=Math.abs(s.red-50)+Math.random()*5);
+ st.order=[...st].sort((a,b)=>b.k-a.k);
+ $('end').style.display='none';$('log').innerHTML='';$('info').innerHTML='<div class="ph">県をタップすると得票率とポイントが見られます。</div>';
+ $('ev').style.display='none';reveal(CNT[0]);log('開票開始。序盤の当確が出そろいました。');draw();
+}
+function reveal(n){const g=[];for(let k=0;k<n;k++){const s=st.order.find(x=>!x.rev);if(!s)break;s.rev=true;g.push(s)}
+ g.forEach(s=>log(`${P[s.i][0]}（${P[s.i][1]}pt）<span class="${s.red>=50?'R nr':'B nb'}">${s.red>=50?NR:NB}</span> 当確`))}
+function next(){if(turn>=T)return;turn++;$('ev').style.display='none';if(EVT[turn])fire();reveal(turn===T?47:CNT[turn]);draw();if(turn>=T){stopAuto();finish()}}
+function score(){let r=0,b=0;st.forEach(s=>{if(s.rev)s.red>=50?r+=P[s.i][1]:b+=P[s.i][1]});return[r,b]}
+const phase=()=>{const f=turn/T;return turn===0?'開票開始':turn>=T?'最終開票':f<=.33?'少しずつ判明':f<=.66?'勢力図が見え始める':'接戦・逆転も'};
+function finish(){const[r,b]=score(),e=$('end');e.style.display='block';e.style.background=r>b?'var(--red)':b>r?'var(--blue)':'var(--gr)';
+ e.textContent=endTxt(r,b);log('<b>全県開票完了</b>')}
+function log(h){const li=document.createElement('li');li.innerHTML=`<span class="ph">[${turn}]</span> ${h}`;$('log').prepend(li)}
+function pack(hex,a){hex=hex.trim();const n=parseInt(hex.slice(1),16);return((a<<24)|((n&255)<<16)|(n&0xff00)|((n>>16)&255))>>>0}
+function draw(){
+ const[r,b]=score();$('sr').textContent=r;$('sb').textContent=b;
+ $('br').style.width=r/TOTAL*100+'%';$('bb').style.width=b/TOTAL*100+'%';
+ $('maj').textContent=`過半数 ${MAJ} / 全${TOTAL}pt`;$('tn').textContent=`ターン ${turn} / ${T}`;$('ph').textContent=phase();$('nx').disabled=turn>=T;
+ const cs=getComputedStyle(document.documentElement),C=n=>cs.getPropertyValue(n);
+ const cR=pack(C('--red'),255),cB=pack(C('--blue'),255),cG=pack(C('--gr'),255),cL=pack(C('--card'),255),cS=pack(C('--tx'),255);
+ const col=st.map(s=>s.rev?(s.red>=50?cR:cB):cG);
+ const img=ctx.createImageData(W,H),u=new Uint32Array(img.data.buffer);
+ for(let y=0;y<H-3;y++)for(let x=0;x<W-3;x++){
+  const i=y*W+x,v=own[i];if(v===255)continue;
+  const a=own[i+3],c=own[i+3*W];
+  if(v===sel&&(a!==v||c!==v||own[i-3]!==v||own[i-3*W]!==v))u[i]=cS;
+  else if(own[i+2]!==v||own[i+2*W]!==v)u[i]=cL;
+  else u[i]=col[v];
+ }
+ ctx.putImageData(img,0,0);
+ ctx.strokeStyle=C('--bd');ctx.lineWidth=2;ctx.strokeRect(500*SC,600*SC,120*SC,100*SC);
+ ctx.textAlign='center';ctx.textBaseline='middle';
+ P.forEach((p,i)=>{if(!area[i])return;const sz=Math.sqrt(area[i]),fs=Math.max(15,Math.min(34,sz*.36)),[x,y]=cen[i];
+  ctx.fillStyle='#fff';ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=3;
+  if(sz>85){ctx.font=`600 ${Math.max(14,fs*.55)}px sans-serif`;ctx.fillText(p[0],x,y-fs*.65);ctx.font=`800 ${fs}px sans-serif`;ctx.fillText(p[1],x,y+fs*.2)}
+  else{ctx.font=`800 ${Math.max(14,fs)}px sans-serif`;ctx.fillText(p[1],x,y)}
+  ctx.shadowBlur=0});
+}
+function info(){const p=P[sel],s=st[sel];
+ $('info').innerHTML=`<h3>${p[0]}　<small class="ph">${p[1]}ポイント</small></h3>`+(s.rev?
+ `<div><span class="${s.red>=50?'R':'B'}">${s.red>=50?NR:NB}</span> 当確</div><div class="sh"><i style="width:${s.red}%"></i></div><div style="display:flex;justify-content:space-between"><span class="R">${NR} ${s.red.toFixed(1)}%</span><span class="B">${NB} ${(100-s.red).toFixed(1)}%</span></div>`:
+ `<div class="ph">まだ結果がわかりません。</div>`)}
+cv.onclick=e=>{const r=cv.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*W),y=Math.floor((e.clientY-r.top)/r.height*H),v=own[y*W+x];
+ if(v===255)return;sel=v;draw();info()};
+function stopAuto(){if(timer){clearInterval(timer);timer=null}$('au').textContent='自動進行'}
+$('nx').onclick=next;
+$('au').onclick=()=>{if(timer){stopAuto();return}if(turn>=T)return;$('au').textContent='停止';timer=setInterval(next,T>25?800:1400)};
+$('rs').onclick=init;
+let z=false;$('zm').onclick=()=>{z=!z;cv.style.width=z?'220%':'100%';$('zm').textContent=z?'縮小 −':'拡大 ＋'};
+matchMedia('(prefers-color-scheme:dark)').onchange=()=>draw();
+$('ir').value=NR==='赤党'?'':NR;$('ib').value=NB==='青党'?'':NB;$('ir').oninput=$('ib').oninput=nameIn;
+$('it').onchange=()=>{T=Math.max(1,Math.min(47,parseInt($('it').value)||15));$('it').value=T;init()};
+$('ie').onchange=init;
+setNames();build();init();
+</script></body></html>
